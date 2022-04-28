@@ -50,6 +50,14 @@ public class ServerTCP {
 
             while ((readChar = reader.read(buffer, 0, bufferLen)) != -1) {
                 adder.getSum(buffer, readChar);
+
+                if (!adder.getResults().isEmpty()) {
+                    for (String result : adder.getResults()) {
+                        System.out.println(result);
+                    }
+
+                    adder.clearResults();
+                }
             }
 
         } catch (Exception ex) {

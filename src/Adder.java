@@ -1,7 +1,11 @@
+import java.util.LinkedList;
+import java.util.List;
+
 public class Adder {
     private State state;
     private int sum;
     private StringBuilder number;
+    private List<String> results;
 
     private enum State {
         /**
@@ -21,6 +25,7 @@ public class Adder {
         state = State.INIT;
         sum = 0;
         number = new StringBuilder();
+        results = new LinkedList<>();
     }
 
     public void resetAdder() {
@@ -45,9 +50,10 @@ public class Adder {
 
             } else if (wasQueryCorrect(getCharType(charBuff[i]))) {
                 addNumber(State.OK);
+                addToResults(Integer.toString(sum));
 
             } else if (wasQueryIncorrect(getCharType(charBuff[i]))) {
-
+                addToResults("ERROR");
             } else {
                 state = State.ERR;
             }
@@ -59,16 +65,25 @@ public class Adder {
 
     }
     
+    private void addToResults(String result) {
+        results.add(result);
+        resetAdder(); 
+    }
+
+    public List<String> getResults() {
+        return results;
+    }
+
+    public void clearResults() {
+        results.clear();
+    }
+
     private boolean wasQueryIncorrect(int charType) {
         return state == State.CRERR && charType == 3;
     }
 
     private boolean wasQueryCorrect(int charType) {
         return state == State.CR && charType == 3;
-    }
-
-    private void clean() {
-        resetAdder();
     }
 
     private boolean didCRAppeard(int charType) {
