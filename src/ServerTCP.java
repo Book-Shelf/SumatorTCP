@@ -1,11 +1,9 @@
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class ServerTCP {
 
@@ -51,7 +49,7 @@ public class ServerTCP {
             writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 
             while ((readChar = reader.read(buffer, 0, bufferLen)) != -1) {
-                adder.read(buffer, readChar);
+                adder.getSum(buffer, readChar);
             }
 
         } catch (Exception ex) {
