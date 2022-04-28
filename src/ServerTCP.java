@@ -1,17 +1,20 @@
-import java.io.BufferedReader;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class ServerTCP {
 
-    ServerSocket server;
-    Socket client;
+    private final int bufferLen = 64;
+
+    private ServerSocket server;
+    private Socket client;
+    private char[] buffer = new char[bufferLen];
+    private Adder adder = new Adder();
     
     ServerTCP() {
         try {
@@ -29,6 +32,7 @@ public class ServerTCP {
             try {
                 client = server.accept();
                 resend();
+                System.out.println("Closing...");
                 client.close();
             } catch (IOException ex) {
                 System.err.println("Problem with accepting a connection");
@@ -39,18 +43,15 @@ public class ServerTCP {
 
     private void resend() {
         BufferedWriter writer;
-        BufferedReader reader;
-        String line;
+        InputStreamReader reader;
+        int readChar;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            reader = new InputStreamReader(client.getInputStream());
             writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 
-            while ((line = reader.readLine()) != null) {
-                writer.write(line);
-                writer.newLine();
-                writer.flush();
-                System.out.println(line);
+            while ((readChar = reader.read(buffer, 0, bufferLen)) != -1) {
+                adder.read(buffer, readChar);
             }
 
         } catch (Exception ex) {
