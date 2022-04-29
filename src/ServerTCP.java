@@ -10,13 +10,12 @@ public class ServerTCP {
     private final int bufferLen = 64;
 
     private ServerSocket server;
-    private Socket client;
     private char[] buffer = new char[bufferLen];
     private Adder adder = new Adder();
     
     ServerTCP() {
         try {
-            server = new ServerSocket(2020);
+            server = new ServerSocket(2020, 2);
         } catch (IOException ex) {
             System.err.println("Problem with opening server socket");
             ex.printStackTrace();
@@ -24,21 +23,40 @@ public class ServerTCP {
         }
     }
 
+    private class ClientWork implements Runnable {
+        Socket client;
+
+        ClientWork(Socket client) {
+            this.client = client;
+        }
+
+        @Override
+        public void run() {
+            try {
+                processMessages(client);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } finally {
+                System.out.println("Closing...");
+            }
+        }
+
+    }
+
     public void listen() {
+        Socket client;
 
         while(true) {
             try {
                 client = server.accept();
-                processMessages();
-                System.out.println("Closing...");
-                client.close();
+                new Thread(new ClientWork(client)).start();;
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
     }
 
-    private void processMessages() throws IOException {
+    private void processMessages(Socket client) throws IOException {
         BufferedWriter writer = null;
         InputStreamReader reader = null;
         int readChar;
@@ -71,7 +89,9 @@ public class ServerTCP {
                 writer.close();
             }
 
-            client.close();
+            if (client != null) {
+                client.close();
+            }
         }
     }
 }
