@@ -34,7 +34,7 @@ public class Adder {
         number = new StringBuilder();
     }
 
-    public String getSum(char[] charBuff, int len) {
+    public void calculateSum(char[] charBuff, int len) {
 
         for (int i = 0; i < len; i++) {
             // System.out.format("%d ", getCharType(charBuff[i]));
@@ -46,10 +46,10 @@ public class Adder {
                 addNumber(State.SPACE);
 
             } else if (didCRAppeard(getCharType(charBuff[i]))) {
-                state = state == State.ERR ? State.CRERR : State.CR;
+                addNumber(State.OK);
+                state = getAppropriateCRState();
 
             } else if (wasQueryCorrect(getCharType(charBuff[i]))) {
-                addNumber(State.OK);
                 addToResults(Integer.toString(sum));
 
             } else if (wasQueryIncorrect(getCharType(charBuff[i]))) {
@@ -61,12 +61,14 @@ public class Adder {
             System.out.format("number:%s sum:%d%n", number, sum);
         }
 
-        return "";
-
     }
     
+    private Adder.State getAppropriateCRState() {
+        return (state == State.ERR || state == State.SPACE || state == State.INIT) ? State.CRERR : State.CR;
+    }
+
     private void addToResults(String result) {
-        results.add(result);
+        results.add(String.format("%s\r\n",result));
         resetAdder(); 
     }
 
@@ -79,7 +81,7 @@ public class Adder {
     }
 
     private boolean wasQueryIncorrect(int charType) {
-        return state == State.CRERR && charType == 3;
+        return (charType == 3 && state != State.CR);
     }
 
     private boolean wasQueryCorrect(int charType) {
@@ -107,10 +109,12 @@ public class Adder {
 
     private void addNumber(State nextState) {
         try {
-            sum = Math.addExact(sum,Math.toIntExact(Long.valueOf(number.toString())));
+            sum = Math.addExact(sum, Math.toIntExact(Long.valueOf(number.toString())));
             number.setLength(0);
             state = nextState;
         } catch (ArithmeticException ex) {
+            state = State.ERR;
+        } catch (NumberFormatException ex) {
             state = State.ERR;
         }
     }

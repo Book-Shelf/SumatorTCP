@@ -29,19 +29,18 @@ public class ServerTCP {
         while(true) {
             try {
                 client = server.accept();
-                resend();
+                processMessages();
                 System.out.println("Closing...");
                 client.close();
             } catch (IOException ex) {
-                System.err.println("Problem with accepting a connection");
                 ex.printStackTrace();
             }
         }
     }
 
-    private void resend() {
-        BufferedWriter writer;
-        InputStreamReader reader;
+    private void processMessages() throws IOException {
+        BufferedWriter writer = null;
+        InputStreamReader reader = null;
         int readChar;
 
         try {
@@ -49,11 +48,12 @@ public class ServerTCP {
             writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 
             while ((readChar = reader.read(buffer, 0, bufferLen)) != -1) {
-                adder.getSum(buffer, readChar);
+                adder.calculateSum(buffer, readChar);
 
                 if (!adder.getResults().isEmpty()) {
                     for (String result : adder.getResults()) {
-                        System.out.println(result);
+                        writer.write(result);
+                        writer.flush();
                     }
 
                     adder.clearResults();
@@ -62,6 +62,16 @@ public class ServerTCP {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            if (reader != null) {
+                reader.close();
+            } 
+
+            if (writer != null) {
+                writer.close();
+            }
+
+            client.close();
         }
     }
 }
