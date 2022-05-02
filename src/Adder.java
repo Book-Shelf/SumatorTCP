@@ -37,7 +37,6 @@ public class Adder {
     public void calculateSum(char[] charBuff, int len) {
 
         for (int i = 0; i < len; i++) {
-            // System.out.format("%d ", getCharType(charBuff[i]));
     
             if (canAppendDigit(getCharType(charBuff[i]))) {
                 appendDigit(charBuff[i]);
@@ -57,8 +56,6 @@ public class Adder {
             } else {
                 state = State.ERR;
             }
-
-            System.out.format("number:%s sum:%d%n", number, sum);
         }
 
     }
@@ -118,7 +115,6 @@ public class Adder {
             state = State.ERR;
         }
     }
-
 
     private int getCharType(char c) {
 
