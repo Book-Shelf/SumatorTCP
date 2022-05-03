@@ -9,15 +9,13 @@ public class Adder {
 
     private enum State {
         /**
-         *  INIT - stan poczatkowy, 
+         * INIT - stan poczatkowy, 
          * DIGIT - ostatni znak to cyfra, 
          * SPACE - ostatni znak to spacja
          * CR - Carriage return appeard
-         * CRERR - Carriage return appeard, error was found 
-         * OK - poprawne zsumowanie, 
          * ERR - wystąpił blad
          */
-        INIT, DIGIT, SPACE, CR, CRERR, OK, ERR
+        INIT, DIGIT, SPACE, CR, ERR
     }
 
 
@@ -37,7 +35,7 @@ public class Adder {
     public void calculateSum(char[] charBuff, int len) {
 
         for (int i = 0; i < len; i++) {
-    
+            
             if (canAppendDigit(getCharType(charBuff[i]))) {
                 appendDigit(charBuff[i]);
 
@@ -45,23 +43,20 @@ public class Adder {
                 addNumber(State.SPACE);
 
             } else if (didCRAppeard(getCharType(charBuff[i]))) {
-                addNumber(State.OK);
-                state = getAppropriateCRState();
+                addNumber(State.CR);
 
             } else if (wasQueryCorrect(getCharType(charBuff[i]))) {
                 addToResults(Integer.toString(sum));
 
             } else if (wasQueryIncorrect(getCharType(charBuff[i]))) {
                 addToResults("ERROR");
+
             } else {
                 state = State.ERR;
+
             }
         }
 
-    }
-    
-    private Adder.State getAppropriateCRState() {
-        return (state == State.ERR || state == State.SPACE || state == State.INIT) ? State.CRERR : State.CR;
     }
 
     private void addToResults(String result) {
@@ -78,15 +73,19 @@ public class Adder {
     }
 
     private boolean wasQueryIncorrect(int charType) {
-        return (charType == 3 && state != State.CR);
+        return charType == 3 && state != State.CR;
     }
 
     private boolean wasQueryCorrect(int charType) {
-        return state == State.CR && charType == 3;
+        return charType == 3 && state == State.CR ;
     }
 
     private boolean didCRAppeard(int charType) {
-        return charType == 2;
+        return charType == 2 && state == State.DIGIT;
+    }
+
+    private boolean canAddNumberToSum(int charType) {
+        return charType == 1 && state == State.DIGIT;
     }
 
     private boolean canAppendDigit(int charType) {
@@ -94,15 +93,12 @@ public class Adder {
             || state == State.DIGIT && charType == 0
             || state == State.SPACE && charType == 0);
     }
-
+    
     private void appendDigit(char c) {
         number.append(c);
         state = State.DIGIT;
     }
 
-    private boolean canAddNumberToSum(int charType) {
-        return (state == State.DIGIT && charType == 1);
-    }
 
     private void addNumber(State nextState) {
         try {
