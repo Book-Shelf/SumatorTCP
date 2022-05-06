@@ -13,9 +13,10 @@ public class Adder {
          * DIGIT - ostatni znak to cyfra, 
          * SPACE - ostatni znak to spacja
          * CR - Carriage return appeard
+         * CRERR - Carriage return appeard with an error
          * ERR - wystąpił blad
          */
-        INIT, DIGIT, SPACE, CR, ERR
+        INIT, DIGIT, SPACE, CR, CRERR, ERR
     }
 
 
@@ -42,8 +43,11 @@ public class Adder {
             } else if (canAddNumberToSum(getCharType(charBuff[i]))) {
                 addNumber(State.SPACE);
 
-            } else if (didCRAppeard(getCharType(charBuff[i]))) {
+            } else if (didCRAppeardCorrectly(getCharType(charBuff[i]))) {
                 addNumber(State.CR);
+
+            } else if (didCRAppeardIncorrectly(getCharType(charBuff[i]))) {
+                state = State.CRERR;
 
             } else if (wasQueryCorrect(getCharType(charBuff[i]))) {
                 addToResults(Integer.toString(sum));
@@ -53,7 +57,6 @@ public class Adder {
 
             } else {
                 state = State.ERR;
-
             }
         }
 
@@ -73,15 +76,19 @@ public class Adder {
     }
 
     private boolean wasQueryIncorrect(int charType) {
-        return charType == 3 && state != State.CR;
+        return charType == 3 && state == State.CRERR;
     }
 
     private boolean wasQueryCorrect(int charType) {
         return charType == 3 && state == State.CR ;
     }
 
-    private boolean didCRAppeard(int charType) {
+    private boolean didCRAppeardCorrectly(int charType) {
         return charType == 2 && state == State.DIGIT;
+    }
+
+    private boolean didCRAppeardIncorrectly(int charType) {
+        return charType == 2 && state != State.DIGIT;
     }
 
     private boolean canAddNumberToSum(int charType) {
@@ -105,10 +112,8 @@ public class Adder {
             sum = Math.addExact(sum, Math.toIntExact(Long.valueOf(number.toString())));
             number.setLength(0);
             state = nextState;
-        } catch (ArithmeticException ex) {
-            state = State.ERR;
-        } catch (NumberFormatException ex) {
-            state = State.ERR;
+        } catch (Exception ex) {
+            state = nextState == State.CR ? State.CRERR : State.ERR;
         }
     }
 
