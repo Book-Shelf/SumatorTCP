@@ -9,12 +9,12 @@ public class Adder {
 
     private enum State {
         /**
-         * INIT - stan poczatkowy, 
-         * DIGIT - ostatni znak to cyfra, 
-         * SPACE - ostatni znak to spacja
-         * CR - Carriage return appeard
-         * CRERR - Carriage return appeard with an error
-         * ERR - wystąpił blad
+         * INIT - Initial state, 
+         * DIGIT - last charwas a digit, 
+         * SPACE - last char was a space,
+         * CR - Carriage return appeard,
+         * CRERR - Carriage return appeard with an error,
+         * ERR - error occured.
          */
         INIT, DIGIT, SPACE, CR, CRERR, ERR
     }
